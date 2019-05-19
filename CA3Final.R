@@ -54,6 +54,9 @@ my_variables <- subset(PopRes,
                                   "Population of County", 
                                   "Population Density (/km^2)"))
 
+head(my_variables, 10)
+str(my_variables)
+
 # Summary statistics showing the minimum, maximum, quartiles, and 
 # mean for variables of interest.
 summary(my_variables)
@@ -194,7 +197,7 @@ normality_test4$p.value
 # none of them are normally distributed. This indicates that
 # a non-parametric test is required. Therefore, the relationship 
 # between an independent population variable and a dependent 
-# residential property variable would correspond the the Spearman's
+# residential property variable would correspond the Spearman's
 # Correlation Coefficient test.
 
 install.packages("pwr")
@@ -221,6 +224,12 @@ cohen.ES(test = "r", size = "large")
 # less than this means that the null hypothesis H0 can
 # be rejected and that the alternative hypothesis H1 can be
 # accepted.
+# Checking for an appropriate power value to make the most
+# of the available data.
+power_information <- pwr.r.test(n = 52,
+                                r = 0.5, 
+                                sig.level = 0.05)
+power_information
 # The power was set to 0.95 to reduce the probability of a
 # type-2 error as much as possible.
 power_information <- pwr.r.test(r = 0.5, 
@@ -247,8 +256,8 @@ cor.test(PopRes$`Population Density (/km^2)`, PopRes$`Mean Price (€)`, method 
 # between 'Population of County' and 'Mean Price (€)' is 5.498e-09, with 
 # Spearman's rank correlation rho equal to 0.7209938.
 
-# While all of the tests produce a p-value that is statisitcally significant,
-# the 'Population of County' seems to have the strongest affect on 'Mean Price (€)'.
+# While all of the tests produce a p-value that is statistically significant,
+# the 'Population of County' seems to have the strongest effect on 'Mean Price (€)'.
 # Therefore, the null hypothesis H0 can be rejected and the alternative 
 # hypothesis H1 can be accepted.
 
