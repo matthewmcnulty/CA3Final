@@ -1,85 +1,73 @@
 # Importing dataset and replacing missing entries with "NA".
-PopvPrice <- read.csv('20112016.csv', header = TRUE, 
+# PopRes mean 'Population and Residential Properties'.
+PopRes <- read.csv('20112016.csv', header = TRUE, 
                       stringsAsFactors = FALSE, na.strings = c("", "NA"))
 
-# Show the total number of rows,
+# Showing the total number of rows,
 # the first 10 rows of the data frame, 
 # and the structure of the data frame.
-nrow(PopvPrice)
+nrow(PopRes)
 
-head(PopvPrice, 10)
-str(PopvPrice)
+head(PopRes, 10)
+str(PopRes)
 
-# Add a suitable title for each attribute of the data.
-colnames(PopvPrice) <- c("County", "Date of Sale", "Total Sales", 
+# Adding a suitable title for each attribute of the data.
+colnames(PopRes) <- c("County", "Date of Sale", "Total Sales", 
                          "Mean Price (€)", "Median Price (€)", "Mode Price (€)",
-                         "Population", "Population Change", "Population Change (%)",
+                         "Population of County", "Population Change", "Population Change (%)",
                          "Area (km^2)", "Population Density (/km^2)")
 
-head(PopvPrice, 10)
-str(PopvPrice)
+head(PopRes, 10)
+str(PopRes)
 
-# Show the total number and mean missing values 
+# Showing the total number of mean missing values 
 # for each column in the data frame.
-sum(is.na(PopvPrice))
-colSums(is.na(PopvPrice))
-sum(complete.cases(PopvPrice))
+sum(is.na(PopRes))
+colSums(is.na(PopRes))
+sum(complete.cases(PopRes))
 
-head(PopvPrice, 10)
-str(PopvPrice)
+head(PopRes, 10)
+str(PopRes)
 
 # Cannot remove or replace missing entries in the 'Mode Price' 
 # column as it is dependent on its respective county. 
-# The value for 'Mode Price' cannot be calculated as the sample size is not large enough.
+# The value for 'Mode Price (€)' cannot be calculated as the sample size is not large enough.
 
 # Modify the 'County' and 'Date of Sale' attributes to be categorising factors.
-PopvPrice$County <- factor(PopvPrice$County)
-class(PopvPrice$County)
+PopRes$County <- factor(PopRes$County)
+class(PopRes$County)
 
-PopvPrice$`Date of Sale` <- factor(PopvPrice$`Date of Sale`)
-class(PopvPrice$`Date of Sale`)
+PopRes$`Date of Sale` <- factor(PopRes$`Date of Sale`)
+class(PopRes$`Date of Sale`)
 
-head(PopvPrice, 10)
-str(PopvPrice)
+head(PopRes, 10)
+str(PopRes)
 
-# Descriptive statistics ----------------------------------------------
-# we’ll look at measures of central tendency, variability
-# and distribution shape for continuous variables
+# Summary statistics showing the minimum, maximum, quartiles, and 
+# mean for variables of interest.
 my_variables <- c("Total Sales", "Mean Price (€)", 
-                  "Population", "Population Density (/km^2)")
-head(PopvPrice[my_variables], 10)
-str(PopvPrice[my_variables])
+                  "Population of County", "Population Density (/km^2)")
+summary(PopRes[my_variables])
 
-
-# Summary statistics
-# provides the minimum, maximum, quartiles, and 
-# mean for numerical variables and frequencies 
-# for factors and logical vectors
-summary(PopvPrice[my_variables])
-
-# Descriptive statistics via sapply()
-my_variables <- c("Total Sales", "Mean Price (€)", 
-                  "Population", "Population Density (/km^2)")
-
-# Our function that accepts in data (x)
-# and outputs it as mean, no of values, SD
-# skew and Kurtosis value
-
+# Creating a function that uses input data (x)
+# and outputs its mean, no of values, standard deviation
+# skew and kurtosis value.
 my_stats <- function(x, na.omit = FALSE) {
   if (na.omit)
-    x <- x[!is.na(x)] # omit missing values
+    x <- x[!is.na(x)] # omit missing values in x
+  n <- length(x)
   m <- mean(x)
-  n <- length(x) #no of values in x
-  s <- sd(x) #SD of all values in each column
+  s <- sd(x) # standard deviation of all values in x
   skew <- sum((x - m) ^ 3 / s ^ 3) / n
   kurt <- sum((x - m) ^ 4 / s ^ 4) / n - 3
   return(c(n = n, mean = m, stdev = s, skew = skew, kurtosis = kurt))
 }
 
+# Descriptive statistics via sapply()
 # sapply(x, FUN, options) where x is the 
-# data frame (or matrix) and FUN is an arbitrary function
-head(PopvPrice[my_variables])
-sapply(PopvPrice[my_variables], my_stats)
+# data frame (or matrix) and FUN is an arbitrary function.
+head(PopRes[my_variables])
+sapply(PopRes[my_variables], my_stats)
 
 # Results show mean Total Sales is 102.038462, with a SD of 178.907355. 
 # The distribution is skewed to the right(+4.472292) 
@@ -89,7 +77,7 @@ sapply(PopvPrice[my_variables], my_stats)
 # The distribution is skewed to the right(+1.867109e+00) 
 # and is sharper than a normal distribution (+4.833429e+00).
 
-# Results show mean Population is 1.797352e+05, with a SD of 2.480682e+05. 
+# Results show mean Population of County is 1.797352e+05, with a SD of 2.480682e+05. 
 # The distribution is skewed to the right(+3.706695e+00) 
 # and is sharper than a normal distribution (+1.380929e+01).
 
@@ -99,138 +87,192 @@ sapply(PopvPrice[my_variables], my_stats)
 
 # As the skewness values are greater than 1, the distribution is highly skewed.
 
-# Show  graphically
+# Graphically show the distribution shape for continuous variables.
 install.packages("e1071")
 library(e1071)
-par(mfrow = c(2, 2)) # divides graph area into 2 cols
+par(mfrow = c(2, 2)) # divides graph area into 2 rows, 2 cols
 
-plot(density(PopvPrice$`Total Sales`), 
+# Distribution shape for 'Total Sales'
+plot(density(PopRes$`Total Sales`), 
      main = "Density plot : Total Sales",
      ylab = "Frequency",
-     sub = paste("Skewness : ", round(e1071::skewness(PopvPrice$`Total Sales`), 2)))
+     sub = paste("Skewness : ", round(e1071::skewness(PopRes$`Total Sales`), 2)))
 
-# Lets fill in the area under the density plot
-polygon(density(PopvPrice$`Total Sales`), col = "blue")
+# Filling the area under the graph with colour
+polygon(density(PopRes$`Total Sales`), col = "blue")
 
-plot(density(PopvPrice$`Mean Price (€)`), 
+# Distribution shape for 'Mean Price (€)'
+plot(density(PopRes$`Mean Price (€)`), 
      main = "Density plot : Mean Price (€)",
      ylab = "Frequency",
-     sub = paste("Skewness : ", round(e1071::skewness(PopvPrice$`Mean Price (€)`), 2)))
+     sub = paste("Skewness : ", round(e1071::skewness(PopRes$`Mean Price (€)`), 2)))
 
-# Lets fill in the area under the density plot
-polygon(density(PopvPrice$`Mean Price (€)`), col = "green")
+# Filling the area under the graph with colour
+polygon(density(PopRes$`Mean Price (€)`), col = "green")
 
-plot(density(PopvPrice$Population), 
-     main = "Density plot : Population",
+# Distribution shape for 'Population of County'
+plot(density(PopRes$`Population of County`), 
+     main = "Density plot : Population of County",
      ylab = "Frequency",
-     sub = paste("Skewness : ", round(e1071::skewness(PopvPrice$Population), 2)))
+     sub = paste("Skewness : ", round(e1071::skewness(PopRes$`Population of County`), 2)))
 
-# Lets fill in the area under the density plot
-polygon(density(PopvPrice$`Population`), col = "red")
+# Filling the area under the graph with colour
+polygon(density(PopRes$`Population of County`), col = "red")
 
-plot(density(PopvPrice$`Population Density (/km^2)`), 
+# Distribution shape for 'Population Density (/km^2)'
+plot(density(PopRes$`Population Density (/km^2)`), 
      main = "Density plot : Population Density (/km^2)",
      ylab = "Frequency",
-     sub = paste("Skewness : ", round(e1071::skewness(PopvPrice$`Population Density (/km^2)`), 2)))
+     sub = paste("Skewness : ", round(e1071::skewness(PopRes$`Population Density (/km^2)`), 2)))
 
-# Lets fill in the area under the density plot
-polygon(density(PopvPrice$`Population Density (/km^2)`), col = "yellow")
+# Filling the area under the graph with colour
+polygon(density(PopRes$`Population Density (/km^2)`), col = "yellow")
 
-# Using a QQ plot to check for normality
-# qqnorm function plots your sample
-# against a normal distribution
-with(PopvPrice, {
-  qqnorm(PopvPrice$`Total Sales`,
+# Graphs replicate the skewness and kurtosis found for each continuous variable.
+
+# Using a QQ plot to check for normality. 
+# Following code plots sample data against 
+# that of a normal distribution.
+par(mfrow = c(2, 2)) # divides graph area into 2 rows, 2 cols
+
+# QQ plot for 'Total Sales'
+with(PopRes, {
+  qqnorm(PopRes$`Total Sales`,
          main = "Total Sales")
-  qqline(PopvPrice$`Total Sales`)
+  qqline(PopRes$`Total Sales`)
 })
 
-with(PopvPrice, {
-  qqnorm(PopvPrice$`Mean Price (€)`,
+# QQ plot for 'Mean Price (€)'
+with(PopRes, {
+  qqnorm(PopRes$`Mean Price (€)`,
          main = "Mean Price (€)")
-  qqline(PopvPrice$`Mean Price (€)`)
+  qqline(PopRes$`Mean Price (€)`)
 })
 
-with(PopvPrice, {
-  qqnorm(PopvPrice$Population,
-         main = "Population")
-  qqline(PopvPrice$Population)
+# QQ plot for 'Population of County'
+with(PopRes, {
+  qqnorm(PopRes$`Population of County`,
+         main = "Population of County")
+  qqline(PopRes$`Population of County`)
 })
 
-with(PopvPrice, {
-  qqnorm(PopvPrice$`Population Density (/km^2)`,
+# QQ plot for 'Population Density (/km^2)'
+with(PopRes, {
+  qqnorm(PopRes$`Population Density (/km^2)`,
          main = "Population Density (/km^2)")
-  qqline(PopvPrice$`Population Density (/km^2)`)
+  qqline(PopRes$`Population Density (/km^2)`)
 })
+
+# Each QQ plots shows each variable is right-skewed. 
+# While the QQ plot for 'Population Density (/km^2)' looks
+# like that of a normal distribution. A zoomed view will show
+# that is slightly right-skewed. The other performed 
+# tests for normality verify that it is not normally distributed.
 
 # Formal test for normality
-# using the Shapiro-wilks test
-normality_test1 <- shapiro.test(PopvPrice$`Total Sales`)
+# using the Shapiro-wilks test.
+normality_test1 <- shapiro.test(PopRes$`Total Sales`)
 normality_test1$p.value
-normality_test2 <- shapiro.test(PopvPrice$`Mean Price (€)`)
+normality_test2 <- shapiro.test(PopRes$`Mean Price (€)`)
 normality_test2$p.value
-normality_test3 <- shapiro.test(PopvPrice$Population)
+normality_test3 <- shapiro.test(PopRes$`Population of County`)
 normality_test3$p.value
-normality_test4 <- shapiro.test(PopvPrice$`Population Density (/km^2)`)
+normality_test4 <- shapiro.test(PopRes$`Population Density (/km^2)`)
 normality_test4$p.value
-# P value indicates whether the sample
-# comes from a normal distribution
-# p-value is clearly lower than 0.05
-# so it is not normally distributed
+# All p-values are clearly lower than 0.05
+# so it is not normally distributed.
 
-# The variables of interest are all continuous variables. PDFs, QQPlots, and Shapiro
-# tests have confirmed that none of them are normally distributed. This indicates that
-# a non-parametric test is required. Therefore, the relationship between an independent population variable
-# and a dependent residential property variable would correspond the the Spearman's
+# The variables of interest are all continuous variables. 
+# PDFs, QQ Plots, and Shapiro-wilks tests have confirmed that 
+# none of them are normally distributed. This indicates that
+# a non-parametric test is required. Therefore, the relationship 
+# between an independent population variable and a dependent 
+# residential property variable would correspond the the Spearman's
 # Correlation Coefficient test.
 
 install.packages("pwr")
 library(pwr)
 
+# Null hypothesis, H0: The population level or population density of 
+# a County does not affect the total number of sales or the 
+# mean sold price of residential properties.
+
+# Alternative hypothesis, H1: The population level or population density of 
+# a County does affect the total number of sales or the 
+# mean sold price of residential properties.
+
+# H0: rho = 0
+# H1: rho > 0
+
 # It is suspected that there is a “large” positive linear relationship 
-# between the independent and dependent variables. (Our minimum correlation is 0.6).
+# between the population factors (independent) and price and 
+# number of sales (dependent) variables.
 cohen.ES(test = "r", size = "large")
 
+# The effect size r is equal to 0.5.
+# The usual significance level of 5% is chosen. A p-value
+# less than this means that the null hypothesis H0 can
+# be rejected and that the alternative hypothesis H1 can be
+# accepted.
+# The power was set to 0.95 to reduce the probability of a
+# type-2 error as much as possible.
 power_information <- pwr.r.test(r = 0.5, 
                                 sig.level = 0.05,
                                 power = 0.95)
 power_information
 plot(power_information)
+# The minimum sample size to effectively carry out 
+# hypothesis testing is 46 observations.
 
-# Population vs. Total Sales
-cor.test(PopvPrice$Population, PopvPrice$`Total Sales`, method = "spearman")
-# Population vs. Mean Price
-cor.test(PopvPrice$Population, PopvPrice$`Mean Price (€)`, method = "spearman")
+# Population of County vs. Total Sales
+cor.test(PopRes$`Population of County`, PopRes$`Total Sales`, method = "spearman")
+# Population of County vs. Mean Price
+cor.test(PopRes$`Population of County`, PopRes$`Mean Price (€)`, method = "spearman")
 # Population Density vs. Total Sales
-cor.test(PopvPrice$`Population Density (/km^2)`, PopvPrice$`Total Sales`, method = "spearman")
+cor.test(PopRes$`Population Density (/km^2)`, PopRes$`Total Sales`, method = "spearman")
 # Population Density vs. Mean Price
-cor.test(PopvPrice$`Population Density (/km^2)`, PopvPrice$`Mean Price (€)`, method = "spearman")
+cor.test(PopRes$`Population Density (/km^2)`, PopRes$`Mean Price (€)`, method = "spearman")
 
 # Like all correlation coefficients, Spearman’s rho 
 # measures the strength of association between two variables. 
 
-# Visualise if there are any linear relationships between the 
-# independent and dependent variables
-par(mfrow = c(1, 1)) # divides graph area into 2 cols
-simple_linear_model <- lm(PopvPrice$Population ~ PopvPrice$`Mean Price (€)`, data = PopvPrice)
+# Resulting p-value from Spearman Correlation Coefficient 
+# between 'Population of County' and 'Mean Price (€)' is 5.498e-09, with 
+# Spearman's rank correlation rho equal to 0.7209938.
+
+# While all of the tests produce a p-value that is statisitcally significant,
+# the 'Population of County' seems to have the strongest affect on 'Mean Price (€)'.
+# Therefore, the null hypothesis H0 can be rejected and the alternative 
+# hypothesis H1 can be accepted.
+
+# Visualising the relationship between 'Population of County' and 'Mean Price (€)'. 
+par(mfrow = c(1, 1)) # resets the graph area
+simple_linear_model <- lm(PopRes$`Population of County` ~ PopRes$`Mean Price (€)`, data = PopRes)
 simple_linear_model
 
-plot(x = PopvPrice$Population, 
-     y = PopvPrice$`Mean Price (€)`,
-     main = "Population ~ Mean Price (€)",
-     xlab = "Population",
+plot(x = PopRes$`Population of County`, 
+     y = PopRes$`Mean Price (€)`,
+     main = "Population of County ~ Mean Price (€)",
+     xlab = "Population of County",
      ylab = "Mean Price (€)")
 
 abline(simple_linear_model)
 
-par(mfrow = c(1, 2)) # divides graph area into 2 cols
-boxplot(PopvPrice$Population, 
-        main = "Population", 
-        sub = paste("Outlier rows ", 
-                    boxplot.stats(PopvPrice$Population)$out))
+# As seen from the graph, there are few obvious outliers. The data point
+# that lies furthers from the linear model is Dublin. This is due to the 
+# small relative size of the county and the amount of people living in it.
 
-boxplot(PopvPrice$`Mean Price (€)`, 
+# Using a boxplot to determine the mathematical outliers 
+# within both of the continuous variables. 'Population of County' has 4 outliers,
+# while 'Mean Price (€)' has 3.
+par(mfrow = c(1, 2)) # divides graph area into 1 row, 2 cols
+boxplot(PopRes$`Population of County`, 
+        main = "Population of County", 
+        sub = paste("Outlier rows ", 
+                    boxplot.stats(PopRes$`Population of County`)$out))
+
+boxplot(PopRes$`Mean Price (€)`, 
         main = "Mean Price (€)", 
         sub = paste("Outlier rows ", 
-                    boxplot.stats(PopvPrice$`Mean Price (€)`)$out))
+                    boxplot.stats(PopRes$`Mean Price (€)`)$out))
 
