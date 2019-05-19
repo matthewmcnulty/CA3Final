@@ -79,19 +79,19 @@ my_stats <- function(x, na.omit = FALSE) {
 head(my_variables)
 sapply(my_variables, my_stats)
 
-# Results show mean Total Sales is 102.038462, with a SD of 178.907355. 
+# •	The mean of Total Sales is 102.038462, with a SD of 178.907355. 
 # The distribution is skewed to the right(+4.472292) 
 # and is sharper than a normal distribution (+22.547758).
 
-# Results show mean Mean Price (€) is 1.553869e+05, with a SD of 6.588035e+04. 
+# •	The mean of Mean Price (€) is 1.553869e+05, with a SD of 6.588035e+04. 
 # The distribution is skewed to the right(+1.867109e+00) 
 # and is sharper than a normal distribution (+4.833429e+00).
 
-# Results show mean Population of County is 1.797352e+05, with a SD of 2.480682e+05. 
+# •	The mean of Population of County is 1.797352e+05, with a SD of 2.480682e+05. 
 # The distribution is skewed to the right(+3.706695e+00) 
 # and is sharper than a normal distribution (+1.380929e+01).
 
-# Results show mean Population Density (/km^2) is 106.16635, with a SD of 267.12248. 
+# •	The mean of Population Density (/km^2) is 106.16635, with a SD of 267.12248. 
 # The distribution is skewed to the right(+4.57647) 
 # and is sharper than a normal distribution (+19.63182).
 
