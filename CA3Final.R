@@ -43,15 +43,24 @@ class(PopRes$`Date of Sale`)
 head(PopRes, 10)
 str(PopRes)
 
+# Creating a new subset called my_variables 
+# Store within it only variables of interest.
+# It is thought that "Population of County" and 
+# "Population Density (/km^2)" could have an 
+# affect on "Total Sales" and "Mean Price (€)".
+my_variables <- subset(PopRes, 
+                       select = c("Total Sales", 
+                                  "Mean Price (€)", 
+                                  "Population of County", 
+                                  "Population Density (/km^2)"))
+
 # Summary statistics showing the minimum, maximum, quartiles, and 
 # mean for variables of interest.
-my_variables <- c("Total Sales", "Mean Price (€)", 
-                  "Population of County", "Population Density (/km^2)")
-summary(PopRes[my_variables])
+summary(my_variables)
 
 # Creating a function that uses input data (x)
-# and outputs its mean, no of values, standard deviation
-# skew and kurtosis value.
+# and outputs its mean, no of values, standard deviation,
+# skew, and kurtosis value.
 my_stats <- function(x, na.omit = FALSE) {
   if (na.omit)
     x <- x[!is.na(x)] # omit missing values in x
@@ -63,11 +72,9 @@ my_stats <- function(x, na.omit = FALSE) {
   return(c(n = n, mean = m, stdev = s, skew = skew, kurtosis = kurt))
 }
 
-# Descriptive statistics via sapply()
-# sapply(x, FUN, options) where x is the 
-# data frame (or matrix) and FUN is an arbitrary function.
-head(PopRes[my_variables])
-sapply(PopRes[my_variables], my_stats)
+# Descriptive statistics of my_variables via sapply()
+head(my_variables)
+sapply(my_variables, my_stats)
 
 # Results show mean Total Sales is 102.038462, with a SD of 178.907355. 
 # The distribution is skewed to the right(+4.472292) 
@@ -179,8 +186,8 @@ normality_test3 <- shapiro.test(PopRes$`Population of County`)
 normality_test3$p.value
 normality_test4 <- shapiro.test(PopRes$`Population Density (/km^2)`)
 normality_test4$p.value
-# All p-values are clearly lower than 0.05
-# so it is not normally distributed.
+# All p-values are clearly lower than 0.05,
+# so they are not normally distributed.
 
 # The variables of interest are all continuous variables. 
 # PDFs, QQ Plots, and Shapiro-wilks tests have confirmed that 
@@ -263,8 +270,7 @@ abline(simple_linear_model)
 # small relative size of the county and the amount of people living in it.
 
 # Using a boxplot to determine the mathematical outliers 
-# within both of the continuous variables. 'Population of County' has 4 outliers,
-# while 'Mean Price (€)' has 3.
+# within both of the continuous variables.
 par(mfrow = c(1, 2)) # divides graph area into 1 row, 2 cols
 boxplot(PopRes$`Population of County`, 
         main = "Population of County", 
@@ -275,4 +281,7 @@ boxplot(PopRes$`Mean Price (€)`,
         main = "Mean Price (€)", 
         sub = paste("Outlier rows ", 
                     boxplot.stats(PopRes$`Mean Price (€)`)$out))
+
+# 'Population of County' has 4 outliers,
+# while 'Mean Price (€)' has 3.
 
